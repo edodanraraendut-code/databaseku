@@ -23,6 +23,15 @@
     "exp": "23/02/2026",
     "status": "Banned",
     "token": "VTX-AO5TXALK5",
+    "logs": [],
+    "remaining": "1 Days Left"
+  },
+  {
+    "ownerName": "Edo aja 04",
+    "number": "628565582526455",
+    "exp": "23/02/2026",
+    "status": "Nonactive",
+    "token": "VTX-TVVRXZ57P",
     "logs": []
   }
 ]
