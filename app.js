@@ -69,10 +69,19 @@ app.get('/api/verifikasi/:token', async (req, res) => {
         const botIndex = db.findIndex(b => b.token === req.params.token);
         
         if (botIndex !== -1) {
-            const bot = db[botIndex];
+            let bot = db[botIndex];
             const timeNow = moment().tz("Asia/Jakarta").format("HH:mm:ss");
             
-            // Log Activity
+            // 1. Hitung Mundur & Cek Expired
+            const sisaHari = getRemainingDays(bot.exp);
+            
+            // 2. Update status bot secara otomatis jika expired
+            // (Kecuali jika statusnya memang sudah 'Banned' atau 'Nonactive')
+            if (sisaHari === "EXPIRED" && bot.status === "Active") {
+                bot.status = "Nonactive"; // Atau biarkan tetap Active tapi dengan sisaHari EXPIRED
+            }
+
+            // 3. Log Activity
             const newLog = { 
                 time: timeNow, 
                 status: bot.status, 
@@ -82,14 +91,21 @@ app.get('/api/verifikasi/:token', async (req, res) => {
             bot.logs.unshift(newLog);
             if (bot.logs.length > 10) bot.logs.pop();
 
-            // Background Commit (tidak menunggu proses simpan selesai agar API cepat)
-            commitDB(db, `Ping ${bot.ownerName}`).catch(e => {});
+            // Background Commit (Simpan log & status terbaru ke GitHub)
+            commitDB(db, `Ping & Check Expired ${bot.ownerName}`).catch(e => {});
 
-            res.json({ success: true, ...bot });
+            // 4. Kirim Respon Final
+            res.json({ 
+                success: true, 
+                ...bot,
+                remaining: sisaHari // Menambahkan hitungan mundur ke respon JSON
+            });
         } else {
             res.status(404).json({ success: false, message: "Invalid Node" });
         }
-    } catch (e) { res.status(500).json({ success: false }); }
+    } catch (e) { 
+        res.status(500).json({ success: false, error: "Internal Server Error" }); 
+    }
 });
 
 // 2. Dashboard Stats
