@@ -3,7 +3,9 @@ const { Octokit } = require("@octokit/rest");
 const moment = require('moment-timezone');
 const fetch = require('node-fetch');
 const app = express();
+const path = require('path');
 
+app.use(express.static(path.join(__dirname, 'view')));
 app.use(express.json());
 
 const { GH_TOKEN, GH_OWNER, GH_REPO, AUTH_JSON_URL } = process.env;
@@ -32,6 +34,24 @@ async function commitDB(content, message) {
 }
 
 // --- ENDPOINTS ---
+app.get('/', (req, res) => {
+    res.status(404).send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>404 Not Found</title></head>
+        <body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+            <h1>404 Not Found</h1>
+            <p>The resource you are looking for might have been removed or is temporarily unavailable.</p>
+            <hr><address>Apache/2.4.41 (Ubuntu) Server at ${req.hostname} Port 443</address>
+        </body>
+        </html>
+    `);
+});
+
+// 3. Tambahkan Route Fallback jika user akses url sembarang
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'view', 'index.html'));
+});
 
 // 1. Verifikasi Real-time & Auto-Logging
 app.get('/api/verifikasi/:token', async (req, res) => {
