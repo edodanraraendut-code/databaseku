@@ -24,31 +24,12 @@
     "remaining": "1 Days Left"
   },
   {
-    "ownerName": "Edo aja 02",
-    "number": "62856558252645",
-    "exp": "20/02/2026",
-    "status": "Nonactive",
-    "token": "VTX-94L7D8J1K",
-    "logs": [
-      {
-        "time": "09:48:44",
-        "status": "Nonactive",
-        "ip": "117.18.16.33"
-      },
-      {
-        "time": "09:48:39",
-        "status": "Nonactive",
-        "ip": "117.18.16.33"
-      }
-    ],
-    "remaining": "EXPIRED"
-  },
-  {
     "ownerName": "Edo aja 03",
     "number": "62856558252649",
     "exp": "00/00/0000",
     "status": "Active",
     "token": "VTX-ZI8QY44RV",
-    "logs": []
+    "logs": [],
+    "remaining": "PERMANENT"
   }
 ]
