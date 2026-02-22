@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const app = express();
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'view')));
+app.use(express.static(path.join(__dirname, 'view'), { index: false }));
 app.use(express.json());
 
 const { GH_TOKEN, GH_OWNER, GH_REPO, AUTH_JSON_URL } = process.env;
