@@ -1,7 +1,9 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/app.js" },
+    { "source": "/", "destination": "/view/index.html" },
     { "source": "/(.*)", "destination": "/view/index.html" }
   ]
 }
