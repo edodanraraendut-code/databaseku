@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>VORTUNIX | CORE CONTROL</title>
+    <title>VORTUNIX V3 | FINAL CONTROL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00f2ff; --active: #00ff88; --banned: #ff3131; --warn: #ffcc00; --bg: #06060c; }
@@ -27,18 +27,18 @@
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { text-align: center; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.02); border-bottom: 2px solid #444; }
 
-        .bot-card { background: rgba(255,255,255,0.04); border-radius: 15px; padding: 15px; margin-bottom: 12px; position: relative; border-left: 4px solid #444; }
+        .bot-card { background: rgba(255,255,255,0.04); border-radius: 15px; padding: 15px; margin-bottom: 12px; position: relative; border-left: 4px solid #444; transition: 0.3s; }
         .status-Active { border-left-color: var(--active); }
         .status-Banned { border-left-color: var(--banned); }
         .status-Nonactive { border-left-color: var(--warn); }
 
-        #logConsole { background: #000; border-radius: 12px; height: 300px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 10px; border: 1px solid #222; }
+        #logConsole { background: #000; border-radius: 12px; height: 350px; overflow-y: auto; padding: 15px; font-family: monospace; font-size: 10px; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 class="title">VORTUNIX V3</h1>
+    <h1 class="title">VORTUNIX V9</h1>
 
     <div id="pageLogin" class="page active-page">
         <div class="glass" style="margin-top: 50px;">
@@ -56,14 +56,14 @@
         </div>
         
         <button class="btn btn-neon" onclick="showAdd()">+ REGISTER NODE</button>
-        <button class="btn btn-outline" onclick="showLogs()">📜 VIEW ACTIVITY LOGS</button>
+        <button class="btn btn-outline" onclick="showLogs()">📜 LIVE ACTIVITY LOGS</button>
         
         <div id="botListContainer" style="margin-top: 25px;"></div>
     </div>
 
     <div id="pageLogs" class="page">
         <div class="glass">
-            <h3 style="margin: 0 0 15px 0; font-family: Orbitron; font-size: 14px; color: var(--neon);">LIVE DATA STREAM</h3>
+            <h3 style="margin: 0 0 15px 0; font-family: Orbitron; font-size: 14px; color: var(--neon);">CORE ACTIVITY STREAM</h3>
             <div id="logConsole"></div>
             <button class="btn btn-neon" style="margin-top: 15px;" onclick="switchPage('pageDash')">CLOSE STREAM</button>
         </div>
@@ -74,14 +74,13 @@
             <h3 style="font-family: Orbitron; font-size: 14px;">CONFIGURATION</h3>
             <input id="owner" type="text" placeholder="Owner Name">
             <input id="num" type="number" placeholder="Phone Number (628...)">
-            <input id="exp" type="text" placeholder="Validity">
+            <input id="exp" type="text" placeholder="Validity (DD/MM/YYYY) / 00/00/0000">
             <select id="stat">
                 <option value="Active">ACTIVE</option>
                 <option value="Nonactive">NONACTIVE</option>
-                <option value="Banned">BANNED (WIPE)</option>
+                <option value="Banned">BANNED</option>
             </select>
-            <div style="font-size: 10px; color: #888; margin-bottom: 5px;">GENERATED TOKEN:</div>
-            <div id="tkn" style="padding: 10px; background: #000; border-radius: 8px; color: var(--neon); font-family: monospace; font-size: 12px; margin-bottom: 15px;">-</div>
+            <div id="tkn" style="padding: 10px; background: #000; border-radius: 8px; color: var(--neon); font-family: monospace; font-size: 12px; margin-bottom: 15px; text-align: center; border: 1px dashed var(--neon);">--TOKEN GEN--</div>
             <button class="btn btn-neon" onclick="save()">Push to Database</button>
             <button class="btn btn-outline" onclick="switchPage('pageDash')">Back</button>
         </div>
@@ -100,8 +99,8 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username, password})
         });
-        if(res.ok) switchPage('pageDash'), loadDash();
-        else alert("LOGIN FAILED");
+        if(res.ok) { switchPage('pageDash'); loadDash(); }
+        else alert("ACCESS DENIED");
     }
 
     async function loadDash() {
@@ -118,12 +117,34 @@
         DB.forEach((b, i) => {
             cont.innerHTML += `
                 <div class="bot-card status-${b.status}">
-                    <b style="font-size: 16px;">${b.ownerName}</b>
-                    <div style="font-size: 12px; color: #888;">+${b.number} | ${b.exp}</div>
-                    <div style="font-size: 10px; color: var(--neon); margin-top: 5px;">${b.token}</div>
-                    <button onclick="del(${i})" style="position:absolute; right:15px; top:15px; background:none; border:none; color:#ff4444; cursor:pointer;">✖</button>
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <b style="font-size: 17px;">${b.ownerName}</b>
+                            <div style="font-size: 12px; color: #888;">+${b.number}</div>
+                            <div style="font-size: 12px; color: var(--neon); font-weight: bold; margin-top: 4px;">
+                                ⏳ ${b.remaining}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="editStat('${b.token}', '${b.status}')" style="background:rgba(0,242,255,0.1); border:1px solid var(--neon); color:var(--neon); border-radius:6px; padding:4px 10px; cursor:pointer; font-size:10px; font-weight:bold;">EDIT</button>
+                            <button onclick="del(${i})" style="color:#ff4444; background:none; border:none; cursor:pointer; font-size:18px;">✖</button>
+                        </div>
+                    </div>
+                    <div style="font-size: 9px; color: #444; margin-top: 10px; font-family: monospace;">TOKEN: ${b.token}</div>
                 </div>`;
         });
+    }
+
+    async function editStat(token, current) {
+        const s = prompt("Ubah Status (Active/Nonactive/Banned):", current);
+        if (s && ["Active", "Nonactive", "Banned"].includes(s)) {
+            await fetch('/api/update-status', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token, newStatus: s })
+            });
+            loadDash();
+        }
     }
 
     function showAdd() {
@@ -132,10 +153,14 @@
     }
 
     async function save() {
+        const dateInput = document.getElementById('exp').value;
+        const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+        if (!datePattern.test(dateInput)) return alert("Gunakan format DD/MM/YYYY!");
+
         DB.push({
             ownerName: document.getElementById('owner').value,
             number: document.getElementById('num').value,
-            exp: document.getElementById('exp').value,
+            exp: dateInput,
             status: document.getElementById('stat').value,
             token: document.getElementById('tkn').innerText,
             logs: []
@@ -144,7 +169,7 @@
     }
 
     async function del(i) {
-        if(confirm("Wipe this data?")) {
+        if(confirm("Wipe this node data?")) {
             DB.splice(i, 1);
             await sync("WIPE_NODE");
         }
@@ -167,10 +192,10 @@
             const logs = await r.json();
             const con = document.getElementById('logConsole');
             con.innerHTML = logs.map(l => `
-                <div style="margin-bottom:8px; border-bottom:1px solid #111;">
+                <div style="margin-bottom:8px; border-bottom:1px solid #111; padding-bottom:5px;">
                     <span style="color:#555;">[${l.time}]</span> <b style="color:var(--neon)">${l.name}</b> 
                     <span style="color:${l.status === 'Active' ? '#0f8' : '#f33'}">[${l.status}]</span>
-                    <div style="color:#333; font-size:9px;">IP: ${l.ip}</div>
+                    <div style="color:#333; font-size:9px; margin-left:55px;">Ping: ${l.ip}</div>
                 </div>`).join('');
         };
         fetchL();
