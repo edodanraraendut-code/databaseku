@@ -5,6 +5,12 @@
     "exp": "botana",
     "status": "Active",
     "token": "VTX-5ZZH0QR9I",
-    "logs": []
+    "logs": [
+      {
+        "time": "09:15:13",
+        "status": "Active",
+        "ip": "117.18.16.33"
+      }
+    ]
   }
 ]
