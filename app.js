@@ -12,6 +12,15 @@ const { GH_TOKEN, GH_OWNER, GH_REPO, AUTH_JSON_URL } = process.env;
 const octokit = new Octokit({ auth: GH_TOKEN });
 const DB_PATH = "setting/database.json";
 
+function getRemainingDays(dateStr) {
+    if (dateStr === "00/00/0000") return "PERMANENT";
+    const [d, m, y] = dateStr.split('/');
+    const expDate = moment.tz(`${y}-${m}-${d}`, "Asia/Jakarta").endOf('day');
+    const now = moment.tz("Asia/Jakarta");
+    const diff = expDate.diff(now, 'days');
+    return diff < 0 ? "EXPIRED" : `${diff} Days Left`;
+}
+
 // --- CORE UTILS ---
 async function fetchDB() {
     const { data } = await octokit.repos.getContent({ owner: GH_OWNER, repo: GH_REPO, path: DB_PATH });
@@ -109,7 +118,14 @@ app.get('/api/logs', async (req, res) => {
 
 // 4. CRUD Operations
 app.get('/api/list', async (req, res) => {
-    try { res.json(await fetchDB()); } catch (e) { res.json([]); }
+    try {
+        const db = await fetchDB();
+        const updatedDb = db.map(bot => ({
+            ...bot,
+            remaining: getRemainingDays(bot.exp)
+        }));
+        res.json(updatedDb);
+    } catch (e) { res.json([]); }
 });
 
 app.post('/api/sync', async (req, res) => {
